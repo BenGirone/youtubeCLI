@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Debug</title>
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body id='body'>
+    <script src="plyr.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+        const body = document.getElementById('body');
+        let player = null;
+
+        ipcRenderer.on('video', (event, id) => {
+            if (player) {
+                player.destroy();
+                player = null;
+            }
+
+            body.innerHTML = `
+            <div class="plyr__video-embed" id="player">
+                <iframe
+                    src="https://www.youtube.com/embed/${id}?autoplay=1"
+                    allowfullscreen
+                    allowtransparency
+                    allow="autoplay"
+                ></iframe>
+            </div>`;
+
+            player = new Plyr('#player');
+        });
+
+        ipcRenderer.on('play', (event) => {
+            if (player) {
+                player.play();
+            }
+        });
+
+        ipcRenderer.on('pause', (event) => {
+            if (player) {
+                player.pause();
+            }
+        });
+
+        ipcRenderer.on('forward', (event, seconds) => {
+            if (player) {
+                player.forward(Number(seconds));
+            }
+        });
+
+        ipcRenderer.on('rewind', (event, seconds) => {
+            if (player) {
+                player.rewind(Number(seconds));
+            }
+        });
+
+        ipcRenderer.on('volumeUp', (event, amount) => {
+            if (player) {
+                player.increaseVolume(Number(amount));
+            }
+        });
+
+        ipcRenderer.on('volumeDown', (event, amount) => {
+            if (player) {
+                player.decreaseVolume(Number(amount));
+            }
+        });
+
+        ipcRenderer.on('log', (event, message) => {
+            console.log(message);
+        });
+    </script>
+</body>
+</html>a
